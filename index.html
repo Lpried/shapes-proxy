@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shapes Browser</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/scramjet/scramjet.js"></script>
+  <script src="/controller/controller.api.js"></script>
+  <script type="module" src="/browser.js"></script>
+</head>
+<body>
+  <header><strong><span class="mark">◇</span> SHAPES <span class="muted">BROWSER</span></strong><span class="pill">Network</span></header>
+  <nav aria-label="Browser controls">
+    <button data-action="back" aria-label="Back" disabled>←</button>
+    <button data-action="forward" aria-label="Forward" disabled>→</button>
+    <button data-action="reload" aria-label="Reload website" disabled>↻</button>
+    <form><label class="sr-only" for="address">Website address</label><input id="address" type="text" placeholder="Enter a website address" autocomplete="off" spellcheck="false" required><button id="go">Go</button></form>
+  </nav>
+  <main>
+    <section id="welcome"><div class="symbol">◇</div><h1>Your space to explore.</h1><p>Enter an address above to open a website in Shapes.</p></section>
+    <iframe title="Proxied website" hidden referrerpolicy="no-referrer" allow="fullscreen; clipboard-write"></iframe>
+  </main>
+  <footer><span id="status" role="status" aria-live="polite">Enter a website to begin</span><button id="retry">Restart browser</button></footer>
+</body>
+</html>
