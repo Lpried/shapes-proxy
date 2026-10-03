@@ -23,9 +23,9 @@ a minute to wake. Heavy service-initiated traffic can cause suspension.
 
 ## Floot connection contract
 
-After deployment and a live browser test, point the Floot launch action at:
+The Floot Home launch dialog and app shortcuts open:
 
-`https://YOUR-RENDER-HOST/#url=ENCODED_DESTINATION`
+`https://shapes-proxy.onrender.com/#url=ENCODED_DESTINATION`
 
 Build the fragment with `new URLSearchParams({ url: destination }).toString()`.
 Open the host in a new tab from a user click. Do not embed this service worker
@@ -39,13 +39,24 @@ route checks server readiness only, not successful remote website browsing.
 
 ## Status
 
-Prepared for deployment; no external host or Floot launch URL is configured yet.
-The production build and three local smoke tests passed: runtime assets and
-health endpoint, WebSocket upgrade/origin handling, and launch URL validation.
-Checks ran with Node 24; the deployment specifies Node 22. A live HTTPS browser
-test is still required, including navigation, assets, reload and WebSockets.
-Some websites may reject proxied browsers or require browser capabilities this
-runtime does not support.
+Deployed on Render's free instance at https://shapes-proxy.onrender.com/ on
+October 3, 2026 (UTC). The source repository is public. Auto-deploy is disabled;
+trigger a manual Render deployment after code changes.
+
+The production build and four local tests passed: runtime assets/health,
+WebSocket origin/path handling, URL validation, and Wisp stream limits. Live
+HTTPS browsing loaded Wikipedia with images/styles and the reload control
+worked. This exercises the Wisp WebSocket transport; proxied third-party
+WebSocket applications and account login flows have not been verified.
+
+Floot Home and Apps now link to the host; Floot typechecking passed. The live
+Floot preview was unavailable for a click test. Some websites may reject
+proxied browsers or require unsupported browser capabilities.
+
+The build applies a guarded compatibility fix to Wisp 0.4.1's per-host stream
+limiter: iterate Object.values(connection.streams), because streams is an object.
+Without this fix a valid outbound connection crashes the server. The limits
+remain enabled. Review this fix when upgrading Wisp.
 
 ## Runtime sources
 
