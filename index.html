@@ -9,17 +9,26 @@
   <script type="module" src="/browser.js"></script>
 </head>
 <body>
-  <header><strong><span class="mark">◇</span> SHAPES <span class="muted">BROWSER</span></strong><span class="pill">Network</span></header>
-  <nav aria-label="Browser controls">
-    <button data-action="back" aria-label="Back" disabled>←</button>
-    <button data-action="forward" aria-label="Forward" disabled>→</button>
-    <button data-action="reload" aria-label="Reload website" disabled>↻</button>
-    <form><label class="sr-only" for="address">Website address</label><input id="address" type="text" placeholder="Enter a website address" autocomplete="off" spellcheck="false" required><button id="go">Go</button></form>
-  </nav>
+  <header class="tab-strip">
+    <div id="tabs" role="tablist" aria-label="Open websites"></div>
+    <nav class="network-nav" aria-label="Shapes navigation"><button id="home">Home</button><button id="apps">Apps</button><button id="chat">Chat</button></nav>
+    <div class="window-actions"><button id="new-tab" class="icon-button" aria-label="New tab" title="New tab">+</button><button id="close-tab" class="icon-button" aria-label="Close current tab" title="Close current tab">×</button></div>
+  </header>
+  <div class="toolbar">
+    <nav class="history-controls" aria-label="Browser controls">
+      <button data-action="back" class="icon-button" aria-label="Back" title="Back" disabled><svg viewBox="0 0 24 24"><path d="m14 7-5 5 5 5"/></svg></button>
+      <button data-action="forward" class="icon-button" aria-label="Forward" title="Forward" disabled><svg viewBox="0 0 24 24"><path d="m10 7 5 5-5 5"/></svg></button>
+      <button data-action="reload" class="icon-button" aria-label="Reload website" title="Reload website" disabled><svg viewBox="0 0 24 24"><path d="M20 10a8 8 0 1 0-2 8M20 4v6h-6"/></svg></button>
+    </nav>
+    <form aria-label="Open a website"><span id="connection" title="Website address"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><label class="sr-only" for="address">Website address</label><input id="address" type="text" placeholder="Enter a website address" autocomplete="off" spellcheck="false" required><button id="go" class="sr-only" type="submit">Go</button></form>
+    <button id="profile" class="profile-button" aria-label="Profile" title="Profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/></svg></button>
+  </div>
   <main>
-    <section id="welcome"><div class="symbol">◇</div><h1>Your space to explore.</h1><p>Enter an address above to open a website in Shapes.</p></section>
-    <iframe title="Proxied website" hidden referrerpolicy="no-referrer" allow="fullscreen; clipboard-write"></iframe>
+    <section id="welcome"><h1>Shapes Network</h1><p>Enter a website address above to start browsing.</p></section>
+    <section id="app-panel" hidden><h1>Apps</h1><div class="app-grid"><button data-url="https://discord.com">Discord</button><button data-url="https://tiktok.com">TikTok</button><button data-url="https://chatgpt.com">ChatGPT</button><button data-url="https://www.gauth.com">Gauth AI</button></div></section>
+    <div id="frames"></div>
   </main>
-  <footer><span id="status" role="status" aria-live="polite">Enter a website to begin</span><button id="retry">Restart browser</button></footer>
+  <div id="notice" hidden><span id="status" role="status" aria-live="polite"></span><button id="retry">Restart browser</button></div>
+  <dialog id="account-dialog"><button id="dismiss-dialog" class="icon-button" aria-label="Close dialog">×</button><h2 id="account-title">Your Shapes profile</h2><p id="account-description">Switch back to your Shapes Network tab to edit your profile and chat.</p><button id="account-done">Got it</button></dialog>
 </body>
 </html>
