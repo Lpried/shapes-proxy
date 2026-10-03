@@ -5,6 +5,24 @@ import { createServer } from 'node:net';
 import { request } from 'node:http';
 import { randomBytes } from 'node:crypto';
 import { normalizeUrl } from './url.js';
+import { is_stream_allowed } from './node_modules/@mercuryworkshop/wisp-js/src/server/filter.mjs';
+import { options } from './node_modules/@mercuryworkshop/wisp-js/src/server/options.mjs';
+import { stream_types, close_reasons } from './node_modules/@mercuryworkshop/wisp-js/src/packet.mjs';
+
+test('Wisp accepts object-backed streams and enforces per-host limits', async () => {
+  const saved = { ...options };
+  try {
+    Object.assign(options, {
+      dns_method: async () => '93.184.216.34',
+      stream_limit_total: 64,
+      stream_limit_per_host: 2,
+    });
+    const connection = { streams: { 1: { socket: { hostname: 'regression.invalid' } } } };
+    assert.equal(await is_stream_allowed(connection, stream_types.TCP, 'regression.invalid', 443), 0);
+    connection.streams[2] = { socket: { hostname: 'regression.invalid' } };
+    assert.equal(await is_stream_allowed(connection, stream_types.TCP, 'regression.invalid', 443), close_reasons.ConnThrottled);
+  } finally { Object.assign(options, saved); }
+});
 
 let child, base;
 before(async () => {
