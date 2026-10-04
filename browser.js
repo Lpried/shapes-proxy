@@ -11,6 +11,9 @@ const tabsElement = document.querySelector('#tabs');
 const framesElement = document.querySelector('#frames');
 const connection = document.querySelector('#connection');
 const tabs = [];
+const embedded = new URLSearchParams(location.search).get('embed') === '1' && parent !== window;
+const shapesOrigin = 'https://4ef7a541-30cc-4bbf-9d05-8a351edd0e95.sandbox.floot.app';
+document.documentElement.classList.toggle('embedded', embedded);
 let current;
 let pending;
 let controller;
@@ -45,7 +48,7 @@ async function start() {
 }
 function refresh() {
   input.value = current?.url || '';
-  history.replaceState(null, '', current?.url ? `/#${new URLSearchParams({ url: current.url })}` : '/');
+  history.replaceState(null, '', '/' + location.search + (current?.url ? `#${new URLSearchParams({ url: current.url })}` : ''));
   welcome.hidden = panel !== 'home' && (panel !== 'browser' || !!current?.url);
   appsPanel.hidden = panel !== 'apps';
   for (const tab of tabs) tab.element.hidden = tab !== current || panel !== 'browser' || !tab.url;
@@ -125,6 +128,7 @@ document.querySelector('#apps').addEventListener('click', () => { panel = 'apps'
 for (const button of document.querySelectorAll('[data-url]')) button.addEventListener('click', () => navigate(button.dataset.url));
 const dialog = document.querySelector('#account-dialog');
 for (const id of ['chat', 'profile']) document.querySelector(`#${id}`).addEventListener('click', () => {
+  if (embedded) { parent.postMessage({ type: 'shapes-browser', action: id }, shapesOrigin); return; }
   document.querySelector('#account-title').textContent = id === 'chat' ? 'Your Shapes chat' : 'Your Shapes profile';
   document.querySelector('#account-description').textContent = id === 'chat' ? 'Chat is in your Shapes Network tab. Switch back and select Chat to join the conversation.' : 'Your profile is in your Shapes Network tab. Switch back to edit your picture and profile.';
   dialog.showModal();
@@ -134,3 +138,10 @@ document.querySelector('#retry').addEventListener('click', () => location.reload
 const initial = new URLSearchParams(location.hash.slice(1)).get('url');
 newTab();
 if (initial) navigate(initial);
+if (embedded) {
+  window.addEventListener('message', event => {
+    if (event.source !== parent || event.origin !== shapesOrigin || event.data?.type !== 'shapes-browser') return;
+    if (event.data.action === 'navigate' && typeof event.data.url === 'string') navigate(event.data.url);
+  });
+  parent.postMessage({ type: 'shapes-browser', action: 'ready' }, shapesOrigin);
+}
