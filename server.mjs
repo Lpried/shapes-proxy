@@ -33,9 +33,34 @@ const server = createServer(app);
 server.on('upgrade', (req, socket, head) => {
   // Prevent unrelated browser pages from borrowing this service. This is an
   // origin check, not user authentication; the deployed browser is public.
-  let sameOrigin = false;
-  try { sameOrigin = new URL(req.headers.origin).host === req.headers.host; } catch {}
-  if (req.url !== '/wisp/' || !sameOrigin) {
+  let originHost = '';
+  try { originHost = new URL(req.headers.origin).host.toLowerCase(); } catch {}
+
+  const requestHost = String(req.headers.host || '').toLowerCase();
+  const forwardedHost = String(req.headers['x-forwarded-host'] || '')
+    .split(',')[0]
+    .trim()
+    .toLowerCase();
+
+  // Bunny can preserve its public hostname in Origin while forwarding the
+  // request to Render with the Render hostname in Host. Permit only the
+  // known public proxy hostnames, plus direct same-origin access.
+  const allowedOrigins = new Set([
+    requestHost,
+    forwardedHost,
+    '122333344.b-cdn.net',
+    'unicoridor.work.gd',
+    'shapes-proxy.onrender.com',
+  ].filter(Boolean));
+
+  const originAllowed = originHost && allowedOrigins.has(originHost);
+  if (req.url !== '/wisp/' || !originAllowed) {
+    console.warn('Rejected Wisp upgrade', {
+      path: req.url,
+      originHost,
+      requestHost,
+      forwardedHost,
+    });
     socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\nContent-Length: 0\r\n\r\n');
     return;
   }
