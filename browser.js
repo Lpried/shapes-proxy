@@ -68,12 +68,9 @@ function refresh() {
     const label = document.createElement('span'); label.textContent = tab.url ? new URL(tab.url).hostname : 'New tab';
     select.append(icon, label);
     select.addEventListener('click', () => { current = tab; panel = 'browser'; announce(''); refresh(); });
-    const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.setAttribute('aria-label', embedded ? 'Close browser and return to Shapes' : `Close ${label.textContent}`);
-    close.title = embedded ? 'Close browser and return to Shapes' : `Close ${label.textContent}`;
-    close.addEventListener('click', () => {
-      if (embedded) parent.postMessage({ type: 'shapes-browser', action: 'close' }, shapesOrigin);
-      else removeTab(tab);
-    });
+    const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.setAttribute('aria-label', `Close ${label.textContent}`);
+    close.title = `Close ${label.textContent}`;
+    close.addEventListener('click', () => removeTab(tab));
     item.append(select, close); tabsElement.append(item);
   }
 }
@@ -126,7 +123,15 @@ async function navigate(value) {
 form.addEventListener('submit', event => { event.preventDefault(); navigate(input.value); });
 for (const button of document.querySelectorAll('[data-action]')) button.addEventListener('click', () => current?.frame?.[button.dataset.action]());
 document.querySelector('#new-tab').addEventListener('click', newTab);
-document.querySelector('#close-tab').addEventListener('click', () => removeTab(current));
+const closeBrowser = document.querySelector('#close-tab');
+if (embedded) {
+  closeBrowser.setAttribute('aria-label', 'Close browser and return to Shapes');
+  closeBrowser.title = 'Close browser and return to Shapes';
+}
+closeBrowser.addEventListener('click', () => {
+  if (embedded) parent.postMessage({ type: 'shapes-browser', action: 'close' }, shapesOrigin);
+  else removeTab(current);
+});
 document.querySelector('#home').addEventListener('click', () => { panel = 'home'; announce(''); refresh(); input.focus(); });
 document.querySelector('#apps').addEventListener('click', () => { panel = 'apps'; announce(''); refresh(); });
 for (const button of document.querySelectorAll('[data-url]')) button.addEventListener('click', () => navigate(button.dataset.url));
