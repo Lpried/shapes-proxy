@@ -68,8 +68,12 @@ function refresh() {
     const label = document.createElement('span'); label.textContent = tab.url ? new URL(tab.url).hostname : 'New tab';
     select.append(icon, label);
     select.addEventListener('click', () => { current = tab; panel = 'browser'; announce(''); refresh(); });
-    const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.setAttribute('aria-label', `Close ${label.textContent}`);
-    close.addEventListener('click', () => removeTab(tab));
+    const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.setAttribute('aria-label', embedded ? 'Close browser and return to Shapes' : `Close ${label.textContent}`);
+    close.title = embedded ? 'Close browser and return to Shapes' : `Close ${label.textContent}`;
+    close.addEventListener('click', () => {
+      if (embedded) parent.postMessage({ type: 'shapes-browser', action: 'close' }, shapesOrigin);
+      else removeTab(tab);
+    });
     item.append(select, close); tabsElement.append(item);
   }
 }
